@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>윈세프 발주 현황판</title>
+<style>
+  :root {
+    --bg: #f5f4f0; --card: #ffffff; --ink: #1f2328; --sub: #6a6f76; --line: #e3e1db;
+    --ok: #1f7a4d; --ok-bg: #e5f4ea; --warn: #9a5b00; --warn-bg: #fdf1dc; --bad: #b42318; --bad-bg: #fdeceb;
+    --r2: #6b4fbb; --r2-bg: #efeafd; --accent: #1f2328;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #16181b; --card: #1f2226; --ink: #e8e9eb; --sub: #9aa0a6; --line: #30343a;
+      --ok: #6fd19b; --ok-bg: #1d3327; --warn: #f0b45c; --warn-bg: #3a2d17; --bad: #f28b82; --bad-bg: #3b1f1d;
+      --r2: #b9a6f5; --r2-bg: #2b2442; --accent: #e8e9eb; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 20px 16px 48px; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -0.02em; }
+  .meta { color: var(--sub); font-size: 13px; }
+  .banner { background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .stat b { display: block; font-size: 26px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .stat span { color: var(--sub); font-size: 13px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  h2 { font-size: 15px; margin: 0 0 12px; }
+  /* 타임라인 */
+  .tl { position: relative; height: 96px; margin: 4px 6px 0; }
+  .tl .band { position: absolute; top: 34px; height: 6px; border-radius: 3px; background: var(--r2); opacity: .55; }
+  .tl .mk.up { top: 0; }
+  .tl .mk.up i { display: none; }
+  .tl .bar { position: absolute; left: 0; right: 0; top: 34px; height: 6px; border-radius: 3px; background: var(--line); }
+  .tl .done { position: absolute; left: 0; top: 34px; height: 6px; border-radius: 3px; background: var(--accent); }
+  .tl .mk { position: absolute; top: 30px; transform: translateX(-50%); text-align: center; font-size: 12px; white-space: nowrap; }
+  .tl .mk i { display: block; width: 2px; height: 14px; margin: 0 auto 4px; background: var(--sub); }
+  .tl .now { position: absolute; top: 30px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--bad); box-shadow: 0 0 0 4px var(--bad-bg); }
+  .next { margin-top: 8px; font-size: 14px; }
+  .next strong { font-variant-numeric: tabular-nums; }
+  /* 거래처 */
+  .vendors { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  .v { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 14px; }
+  .v.got { background: var(--ok-bg); border-color: transparent; }
+  .v.miss { background: var(--warn-bg); border-color: transparent; }
+  .tag { font-size: 12px; padding: 1px 8px; border-radius: 99px; white-space: nowrap; }
+  .got .tag { color: var(--ok); } .miss .tag { color: var(--warn); } .idle .tag { color: var(--sub); }
+  /* 메일 표 */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--sub); font-weight: 500; font-size: 13px; }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .r { white-space: nowrap; font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--line); }
+  .r.r2 { background: var(--r2-bg); color: var(--r2); }
+  .flag { color: var(--warn); } .err { color: var(--bad); font-size: 13px; }
+  .subj { color: var(--sub); font-size: 13px; }
+  .empty { color: var(--sub); text-align: center; padding: 24px 0; }
+  footer { color: var(--sub); font-size: 12px; text-align: center; }
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    th.hide, td.hide { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>윈세프 발주 현황판</h1>
+      <div class="meta" id="date">불러오는 중…</div>
+    </div>
+    <div class="meta" id="updated"></div>
+  </header>
+  <div class="banner" id="banner" hidden></div>
+
+  <div class="grid">
+    <div class="stat"><b id="sMails">–</b><span>오늘 발주 메일</span></div>
+    <div class="stat"><b id="sRows">–</b><span>변환된 주문 줄</span></div>
+    <div class="stat"><b id="sFlags">–</b><span>확인 필요 줄</span></div>
+    <div class="stat"><b id="sMiss">–</b><span>미도착 거래처</span></div>
+  </div>
+
+  <section>
+    <h2>오늘 일정</h2>
+    <div class="tl" id="tl"></div>
+    <div class="next" id="next"></div>
+  </section>
+
+  <section>
+    <h2>거래처별 도착 현황</h2>
+    <div class="vendors" id="vendors"></div>
+  </section>
+
+  <section>
+    <h2>들어온 발주 메일</h2>
+    <table>
+      <thead><tr><th>시각</th><th>차수</th><th>거래처</th><th class="n">줄</th><th>상태</th><th class="hide">첨부</th></tr></thead>
+      <tbody id="mails"></tbody>
+    </table>
+  </section>
+
+  <footer>10분마다 자동 확인 · 변환 파일은 메일로 발송 · 이 화면에는 고객 정보가 나오지 않습니다</footer>
+</div>
+
+<script>
+const START = 9 * 60, END = 16 * 60; // 타임라인 09:00~16:00
+const MARKS = [
+  { t: '10:30', label: '1차 발주' },
+  { t: '13:30', label: '2차 발주' },
+  { t: '14:20', label: '송장 회신 시작', band: true },
+  { t: '15:00', label: '송장 회신 마감', band: true },
+];
+const toMin = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+const pct = m => Math.max(0, Math.min(100, (m - START) / (END - START) * 100));
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const kstNow = () => { const d = new Date(Date.now() + 9 * 3600e3); return { date: d.toISOString().slice(0, 10), min: d.getUTCHours() * 60 + d.getUTCMinutes() }; };
+
+function drawTimeline() {
+  const { min } = kstNow();
+  const tl = document.getElementById('tl');
+  tl.innerHTML = `<div class="bar"></div><div class="done" style="width:${pct(min)}%"></div>` +
+    `<div class="band" style="left:${pct(toMin('14:20'))}%;width:${pct(toMin('15:00')) - pct(toMin('14:20'))}%"></div>` +
+    `<div class="mk up" style="left:${(pct(toMin('14:20')) + pct(toMin('15:00'))) / 2}%">송장 회신<br>14:20~15:00</div>` +
+    MARKS.filter(m => !m.band).map(m => `<div class="mk" style="left:${pct(toMin(m.t))}%"><i></i>${m.t}<br>${m.label}</div>`).join('') +
+    (min >= START && min <= END ? `<div class="now" style="left:${pct(min)}%"></div>` : '');
+  const nx = MARKS.find(m => toMin(m.t) > min);
+  const el = document.getElementById('next');
+  if (!nx) { el.textContent = '오늘 일정이 모두 끝났습니다.'; return; }
+  const left = toMin(nx.t) - min;
+  el.innerHTML = `다음: <b>${nx.label}</b> ${nx.t} · <strong>${left >= 60 ? Math.floor(left / 60) + '시간 ' : ''}${left % 60}분</strong> 남음`;
+}
+
+async function load() {
+  let s;
+  try {
+    const res = await fetch('status.json?t=' + Date.now(), { cache: 'no-store' });
+    s = await res.json();
+  } catch (e) {
+    document.getElementById('date').textContent = '현황 파일을 불러오지 못했습니다.';
+    return;
+  }
+  const { date, min } = kstNow();
+  const mails = s.date === date || s.sample ? (s.mails || []) : [];
+  document.getElementById('date').textContent = `${date} (${'일월화수목금토'[new Date(date + 'T00:00:00+09:00').getDay()]})`;
+  document.getElementById('updated').textContent = s.updatedAt ? `마지막 확인 ${s.updatedAt.slice(11)}` : '';
+
+  const banner = document.getElementById('banner');
+  const lastMin = s.updatedAt && s.updatedAt.slice(0, 10) === date ? toMin(s.updatedAt.slice(11)) : null;
+  if (s.sample) { banner.hidden = false; banner.textContent = '예시 데이터입니다. 자동 확인이 처음 실행되면 실제 현황으로 바뀝니다.'; }
+  else if (min >= START && min <= END && (lastMin === null || min - lastMin > 30)) {
+    banner.hidden = false; banner.textContent = '30분 넘게 자동 확인이 없었습니다. GitHub의 Actions 탭에서 실행 기록을 확인하세요.';
+  } else banner.hidden = true;
+
+  const vendors = s.vendors || [];
+  const got = new Set(mails.map(m => m.vendor));
+  const deadlinePassed = min >= toMin('10:30');
+  document.getElementById('vendors').innerHTML = vendors.map(v => {
+    const has = got.has(v.이름);
+    const cls = has ? 'got' : (v.매일 && deadlinePassed ? 'miss' : 'idle');
+    const txt = has ? `도착 ${mails.filter(m => m.vendor === v.이름).length}건` : (v.매일 ? '미도착' : '대기');
+    return `<div class="v ${cls}"><span>${esc(v.이름)}</span><span class="tag">${txt}</span></div>`;
+  }).join('') + mails.filter(m => !vendors.some(v => v.이름 === m.vendor)).map(m =>
+    `<div class="v miss"><span>${esc(m.vendor)}</span><span class="tag">목록에 없음</span></div>`).join('');
+
+  document.getElementById('sMails').textContent = mails.length;
+  document.getElementById('sRows').textContent = mails.reduce((a, m) => a + (m.rows || 0), 0);
+  document.getElementById('sFlags').textContent = mails.reduce((a, m) => a + (m.flags || 0), 0);
+  document.getElementById('sMiss').textContent = vendors.filter(v => v.매일 && !got.has(v.이름)).length;
+
+  const tb = document.getElementById('mails');
+  tb.innerHTML = mails.length ? [...mails].reverse().map(m => {
+    const state = m.error ? `<span class="err">${esc(m.error)}</span>`
+      : m.flags ? `<span class="flag">확인 필요 ${m.flags}줄</span>` : '변환 완료 · 메일 발송';
+    return `<tr><td>${esc(m.time)}</td><td><span class="r ${m.round === '2차' ? 'r2' : ''}">${esc(m.round)}</span></td>
+      <td>${esc(m.vendor)}<div class="subj">${esc(m.subject)}</div></td><td class="n">${m.rows || 0}</td>
+      <td>${state}</td><td class="hide subj">${esc((m.files || []).join(', '))}</td></tr>`;
+  }).join('') : '<tr><td colspan="6" class="empty">아직 들어온 발주 메일이 없습니다.</td></tr>';
+}
+
+drawTimeline(); load();
+setInterval(drawTimeline, 30e3);
+setInterval(load, 60e3);
+</script>
+</body>
+</html>

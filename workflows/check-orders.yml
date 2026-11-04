@@ -1,0 +1,38 @@
+name: 발주서 메일 확인
+
+on:
+  schedule:
+    # 평일 09:00~15:50 (한국시간) 10분마다. GitHub 시간은 UTC라서 9시간 빼서 적습니다.
+    - cron: '*/10 0-6 * * 1-5'
+  workflow_dispatch: {}   # Actions 탭에서 "Run workflow"로 바로 실행
+
+permissions:
+  contents: write
+
+concurrency:
+  group: check-orders
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: 메일 확인·변환
+        env:
+          NAVER_ID: ${{ secrets.NAVER_ID }}
+          NAVER_APP_PASSWORD: ${{ secrets.NAVER_APP_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+        run: node src/check.mjs
+      - name: 현황판 저장
+        run: |
+          git config user.name "order-bot"
+          git config user.email "order-bot@users.noreply.github.com"
+          git add docs/status.json
+          git diff --cached --quiet || (git commit -m "현황 갱신 $(TZ=Asia/Seoul date '+%m-%d %H:%M')" && git push)
