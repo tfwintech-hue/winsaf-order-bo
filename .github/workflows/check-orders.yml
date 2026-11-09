@@ -22,8 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - name: 메일 확인·변환
         env:
           NAVER_ID: ${{ secrets.NAVER_ID }}
